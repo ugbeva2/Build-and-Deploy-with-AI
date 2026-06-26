@@ -1,40 +1,91 @@
 const taskInput = document.getElementById("taskInput");
-const addBtn = document.getElementById("addBtn");
+const dateInput = document.getElementById("dateInput");
+const addBtn   = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
 const taskCount = document.getElementById("taskCount");
-const clearBtn = document.getElementById("clearBtn");
+const clearBtn  = document.getElementById("clearBtn");
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 displayTasks();
 
 addBtn.addEventListener("click", addTask);
-
 taskInput.addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-        addTask();
-    }
+    if (e.key === "Enter") addTask();
 });
-
 clearBtn.addEventListener("click", clearCompleted);
 
+/* ── helpers ─────────────────────────────────── */
+function todayStr() {
+    return new Date().toISOString().split("T")[0];
+}
+
+function tomorrowStr() {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+}
+
+function urgencyLevel(task) {
+    if (task.completed) return 99;
+    if (!task.dueDate)  return 10;
+    const t = todayStr();
+    const tm = tomorrowStr();
+    if (task.dueDate < t)  return 0;
+    if (task.dueDate === t)  return 1;
+    if (task.dueDate === tm) return 2;
+    return 3;
+}
+
+function dueBadge(task) {
+    if (!task.dueDate) return "";
+    const t  = todayStr();
+    const tm = tomorrowStr();
+
+    let cls, label;
+    if (task.dueDate < t) {
+        cls = "badge overdue-badge"; label = "🔥 Overdue";
+    } else if (task.dueDate === t) {
+        cls = "badge today-badge"; label = "⚡ Due today";
+    } else if (task.dueDate === tm) {
+        cls = "badge tomorrow-badge"; label = "🌅 Tomorrow";
+    } else {
+        const [, m, d] = task.dueDate.split("-");
+        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        cls = "badge upcoming-badge";
+        label = `📅 ${months[+m - 1]} ${+d}`;
+    }
+    return `<span class="${cls}">${label}</span>`;
+}
+
+/* ── add ─────────────────────────────────────── */
 function addTask() {
     const text = taskInput.value.trim();
+    if (!text) return;
 
-    if (text === "") return;
-
-    const task = {
+    tasks.push({
         id: Date.now(),
-        text: text,
+        text,
+        dueDate: dateInput.value || null,
         completed: false
-    };
+    });
 
-    tasks.push(task);
     saveTasks();
     displayTasks();
 
     taskInput.value = "";
+    dateInput.value = "";
     taskInput.focus();
+}
+
+/* ── display ─────────────────────────────────── */
+function sortedTasks() {
+    return [...tasks].sort((a, b) => {
+        const diff = urgencyLevel(a) - urgencyLevel(b);
+        if (diff !== 0) return diff;
+        if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+        return 0;
+    });
 }
 
 function displayTasks() {
@@ -44,24 +95,35 @@ function displayTasks() {
         taskList.innerHTML = `
             <div class="empty-state">
                 <i class="fa-regular fa-clipboard"></i>
-                No tasks yet. Add one above!
+                No tasks yet — add one above!
             </div>
         `;
     } else {
-        tasks.forEach(task => {
+        sortedTasks().forEach(task => {
             const li = document.createElement("li");
-            li.className = "task" + (task.completed ? " completed" : "");
+            const level = urgencyLevel(task);
+            let urgencyClass = "";
+            if (!task.completed) {
+                if (level === 0) urgencyClass = " overdue";
+                else if (level === 1) urgencyClass = " due-today";
+                else if (level === 2) urgencyClass = " due-tomorrow";
+            }
+
+            li.className = "task" + (task.completed ? " completed" : "") + urgencyClass;
 
             li.innerHTML = `
-                <div class="left">
-                    <input type="checkbox"
-                        ${task.completed ? "checked" : ""}
-                        onchange="toggleComplete(${task.id})">
-                    <span>${task.text}</span>
+                <div class="card-body">
+                    <div class="left">
+                        <input type="checkbox"
+                            ${task.completed ? "checked" : ""}
+                            onchange="toggleComplete(${task.id})">
+                        <span>${task.text}</span>
+                    </div>
+                    <button class="delete-btn" onclick="deleteTask(${task.id})" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </div>
-                <button class="delete-btn" onclick="deleteTask(${task.id})" title="Delete task">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                ${dueBadge(task) ? `<div class="badge-row">${dueBadge(task)}</div>` : ""}
             `;
 
             taskList.appendChild(li);
@@ -71,37 +133,31 @@ function displayTasks() {
     updateMeta();
 }
 
+/* ── meta ────────────────────────────────────── */
 function updateMeta() {
-    const total = tasks.length;
-    const done = tasks.filter(t => t.completed).length;
+    const total     = tasks.length;
+    const done      = tasks.filter(t => t.completed).length;
     const remaining = total - done;
 
-    if (total === 0) {
-        taskCount.textContent = "";
-    } else {
-        taskCount.textContent = `${remaining} of ${total} remaining`;
-    }
-
+    taskCount.textContent = total === 0 ? "" : `${remaining} of ${total} remaining`;
     clearBtn.disabled = done === 0;
 }
 
+/* ── mutations ───────────────────────────────── */
 function toggleComplete(id) {
-    tasks = tasks.map(task => {
-        if (task.id === id) task.completed = !task.completed;
-        return task;
-    });
+    tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
     saveTasks();
     displayTasks();
 }
 
 function deleteTask(id) {
-    tasks = tasks.filter(task => task.id !== id);
+    tasks = tasks.filter(t => t.id !== id);
     saveTasks();
     displayTasks();
 }
 
 function clearCompleted() {
-    tasks = tasks.filter(task => !task.completed);
+    tasks = tasks.filter(t => !t.completed);
     saveTasks();
     displayTasks();
 }
