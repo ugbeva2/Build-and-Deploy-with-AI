@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "f0PbugyGU77U3IDBdO7S0"
+uri = "file://README.md"
+type = "text"
+title = "README — My Tasks Todo App"
