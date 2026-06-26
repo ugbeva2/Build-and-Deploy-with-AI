@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo List</title>
+    <title>My Tasks ✨</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
@@ -12,14 +15,16 @@
 
     <div class="container">
 
-        <h1>My Tasks</h1>
-        <p class="subtitle">Stay organised, one task at a time.</p>
+        <div class="header">
+            <h1>My Tasks <span class="emoji">📝</span></h1>
+            <p class="subtitle">Stick to it, one note at a time!</p>
+        </div>
 
         <div class="input-area">
             <input
                 type="text"
                 id="taskInput"
-                placeholder="Add a new task..."
+                placeholder="What do you need to do? 🤔"
             >
             <button id="addBtn">
                 <i class="fa-solid fa-plus"></i>
@@ -29,7 +34,10 @@
 
         <div class="task-header">
             <span class="task-count" id="taskCount"></span>
-            <button class="clear-btn" id="clearBtn">Clear completed</button>
+            <button class="clear-btn" id="clearBtn">
+                <i class="fa-solid fa-broom"></i>
+                Clear done
+            </button>
         </div>
 
         <ul id="taskList"></ul>
