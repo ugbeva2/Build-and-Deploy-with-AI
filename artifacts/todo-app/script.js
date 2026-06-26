@@ -200,12 +200,23 @@ function displayTasks() {
                 startEdit(task.id, spanEl);
             });
 
-            // Single-click card to select
+            // Single-click card to select — toggle class directly, NO re-render
             li.addEventListener("click", function(e) {
                 if (e.target.type === "checkbox" || e.target.closest(".delete-btn")) return;
                 if (editingTaskId !== null) return;
-                selectedTaskId = (selectedTaskId === task.id) ? null : task.id;
-                displayTasks();
+
+                const wasSelected = selectedTaskId === task.id;
+
+                // Clear all selections in DOM directly
+                document.querySelectorAll(".task.selected")
+                    .forEach(el => el.classList.remove("selected"));
+
+                if (wasSelected) {
+                    selectedTaskId = null;
+                } else {
+                    selectedTaskId = task.id;
+                    li.classList.add("selected");
+                }
             });
 
             taskList.appendChild(li);
