@@ -16,8 +16,15 @@
     <div class="container">
 
         <div class="header">
-            <h1>My Tasks <span class="emoji">📝</span></h1>
-            <p class="subtitle">Stick to it, one note at a time!</p>
+            <div class="header-top">
+                <div>
+                    <h1>My Tasks <span class="emoji">📝</span></h1>
+                    <p class="subtitle">Stick to it, one note at a time!</p>
+                </div>
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
         </div>
 
         <div class="input-area">
@@ -25,6 +32,7 @@
                 type="text"
                 id="taskInput"
                 placeholder="What do you need to do? 🤔"
+                autocomplete="off"
             >
             <div class="date-wrap">
                 <i class="fa-regular fa-calendar date-icon"></i>
@@ -34,6 +42,13 @@
                 <i class="fa-solid fa-plus"></i>
                 Add
             </button>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="active">Active</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+            <span class="kbd-hint"><kbd>⌫</kbd> delete selected</span>
         </div>
 
         <div class="task-header">

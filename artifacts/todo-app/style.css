@@ -1,36 +1,100 @@
+/* ── reset ────────────────────────────────────── */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* ── variables ────────────────────────────────── */
+:root {
+    --bg: linear-gradient(135deg, #ffecd2 0%, #fcb69f 40%, #a1c4fd 100%);
+    --input-bg: #fff;
+    --input-color: #444;
+    --input-placeholder: #bbb;
+    --input-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    --input-shadow-focus: 0 4px 20px rgba(0,0,0,0.18);
+    --filter-bg: rgba(255,255,255,0.25);
+    --filter-color: rgba(255,255,255,0.85);
+    --filter-active-bg: #fff;
+    --filter-active-color: #ff6b6b;
+    --meta-color: rgba(255,255,255,0.85);
+    --empty-color: rgba(255,255,255,0.8);
+    --kbd-color: rgba(255,255,255,0.6);
+    --kbd-bg: rgba(255,255,255,0.2);
+    --note-shadow: 0 4px 10px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06), inset 0 -3px 0 rgba(0,0,0,0.06);
+    --note-hover-shadow: 0 10px 28px rgba(0,0,0,0.14), 0 2px 6px rgba(0,0,0,0.08);
+    --note-tab: rgba(0,0,0,0.08);
+    --delete-bg: rgba(0,0,0,0.07);
+    --delete-color: #888;
+    --check-border: rgba(0,0,0,0.2);
+    --check-bg: rgba(255,255,255,0.6);
+    --span-color: #333;
+    --span-done: #999;
+    --selected-outline: #6366f1;
+}
+
+body.dark {
+    --bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+    --input-bg: #1e2a3a;
+    --input-color: #e0e0e0;
+    --input-placeholder: #556;
+    --input-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    --input-shadow-focus: 0 4px 20px rgba(0,0,0,0.5);
+    --filter-bg: rgba(255,255,255,0.08);
+    --filter-color: rgba(255,255,255,0.6);
+    --filter-active-bg: #ff6b6b;
+    --filter-active-color: #fff;
+    --meta-color: rgba(255,255,255,0.55);
+    --empty-color: rgba(255,255,255,0.4);
+    --kbd-color: rgba(255,255,255,0.35);
+    --kbd-bg: rgba(255,255,255,0.1);
+    --note-shadow: 0 4px 14px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3), inset 0 -3px 0 rgba(0,0,0,0.2);
+    --note-hover-shadow: 0 12px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);
+    --note-tab: rgba(0,0,0,0.25);
+    --delete-bg: rgba(255,255,255,0.07);
+    --delete-color: #667;
+    --check-border: rgba(255,255,255,0.25);
+    --check-bg: rgba(255,255,255,0.08);
+    --span-color: #dde;
+    --span-done: #556;
+    --selected-outline: #a5b4fc;
+}
+
+/* ── base ─────────────────────────────────────── */
 body {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 40%, #a1c4fd 100%);
+    background: var(--bg);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     padding: 48px 16px 80px;
     font-family: 'Nunito', sans-serif;
+    transition: background 0.3s;
 }
 
 .container {
     width: 100%;
-    max-width: 520px;
+    max-width: 540px;
 }
 
 /* ── header ───────────────────────────────────── */
 .header {
-    text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 h1 {
     font-size: 2.2rem;
     font-weight: 900;
     color: #fff;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
     letter-spacing: -0.5px;
+    line-height: 1.1;
 }
 
 .emoji {
@@ -44,22 +108,44 @@ h1 {
 }
 
 .subtitle {
-    font-size: 0.95rem;
-    color: rgba(255,255,255,0.85);
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
     margin-top: 4px;
     font-weight: 600;
+}
+
+.theme-toggle {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.2s;
+    margin-top: 4px;
+}
+
+.theme-toggle:hover {
+    background: rgba(255,255,255,0.35);
+    transform: rotate(15deg);
 }
 
 /* ── input area ───────────────────────────────── */
 .input-area {
     display: flex;
     gap: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
     flex-wrap: wrap;
 }
 
 .input-area input[type="text"] {
-    flex: 1 1 200px;
+    flex: 1 1 180px;
     padding: 13px 18px;
     border: none;
     border-radius: 14px;
@@ -67,19 +153,19 @@ h1 {
     font-size: 0.9375rem;
     font-family: 'Nunito', sans-serif;
     font-weight: 600;
-    color: #444;
-    background: #fff;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-    transition: box-shadow 0.2s;
+    color: var(--input-color);
+    background: var(--input-bg);
+    box-shadow: var(--input-shadow);
+    transition: box-shadow 0.2s, background 0.3s, color 0.3s;
     min-width: 0;
 }
 
 .input-area input[type="text"]:focus {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    box-shadow: var(--input-shadow-focus);
 }
 
 .input-area input[type="text"]::placeholder {
-    color: #bbb;
+    color: var(--input-placeholder);
     font-weight: 600;
 }
 
@@ -92,35 +178,41 @@ h1 {
 .date-icon {
     position: absolute;
     left: 12px;
-    color: #bbb;
-    font-size: 0.9rem;
+    color: var(--input-placeholder);
+    font-size: 0.875rem;
     pointer-events: none;
     z-index: 1;
+    transition: color 0.3s;
 }
 
 .date-wrap input[type="date"] {
-    padding: 13px 12px 13px 32px;
+    padding: 13px 10px 13px 30px;
     border: none;
     border-radius: 14px;
     outline: none;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
-    color: #666;
-    background: #fff;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    color: var(--input-color);
+    background: var(--input-bg);
+    box-shadow: var(--input-shadow);
     cursor: pointer;
-    width: 148px;
-    transition: box-shadow 0.2s;
+    width: 144px;
+    transition: box-shadow 0.2s, background 0.3s, color 0.3s;
 }
 
 .date-wrap input[type="date"]:focus {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    box-shadow: var(--input-shadow-focus);
 }
 
 .date-wrap input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 0.5;
     cursor: pointer;
+    filter: var(--cal-filter, none);
+}
+
+body.dark .date-wrap input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
 }
 
 .input-area button {
@@ -150,28 +242,79 @@ h1 {
     transform: scale(0.95);
 }
 
+/* ── filter bar ───────────────────────────────── */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    border: none;
+    background: var(--filter-bg);
+    color: var(--filter-color);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    padding: 6px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.filter-btn.active {
+    background: var(--filter-active-bg);
+    color: var(--filter-active-color);
+}
+
+.filter-btn:not(.active):hover {
+    background: rgba(255,255,255,0.35);
+}
+
+.kbd-hint {
+    margin-left: auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--kbd-color);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+kbd {
+    background: var(--kbd-bg);
+    color: var(--kbd-color);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
 /* ── task header ──────────────────────────────── */
 .task-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     padding: 0 4px;
 }
 
 .task-count {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 800;
-    color: rgba(255,255,255,0.85);
+    color: var(--meta-color);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .clear-btn {
     border: none;
-    background: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.2);
     color: #fff;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-family: 'Nunito', sans-serif;
     font-weight: 800;
     cursor: pointer;
@@ -184,11 +327,11 @@ h1 {
 }
 
 .clear-btn:hover {
-    background: rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.35);
 }
 
 .clear-btn:disabled {
-    opacity: 0.4;
+    opacity: 0.35;
     cursor: default;
 }
 
@@ -201,36 +344,44 @@ h1 {
     padding: 4px 6px;
 }
 
-/* sticky note colours */
+/* sticky note colours — light */
 .task:nth-child(5n+1) { background: #fff9a3; }
 .task:nth-child(5n+2) { background: #ffd6e0; }
 .task:nth-child(5n+3) { background: #c7f9cc; }
 .task:nth-child(5n+4) { background: #bde0fe; }
 .task:nth-child(5n+5) { background: #e2d5f8; }
 
-/* sticky note rotation */
+/* sticky note colours — dark */
+body.dark .task:nth-child(5n+1) { background: #3a3600; }
+body.dark .task:nth-child(5n+2) { background: #3a1220; }
+body.dark .task:nth-child(5n+3) { background: #0e3018; }
+body.dark .task:nth-child(5n+4) { background: #0e2040; }
+body.dark .task:nth-child(5n+5) { background: #200e38; }
+
+/* rotation */
 .task:nth-child(4n+1) { transform: rotate(-1.6deg); }
 .task:nth-child(4n+2) { transform: rotate(1.2deg); }
 .task:nth-child(4n+3) { transform: rotate(-0.8deg); }
 .task:nth-child(4n+4) { transform: rotate(1.8deg); }
 
-/* urgency overrides — take precedence over nth-child colours */
-.task.overdue     { background: #ffe0e0 !important; border-left: 4px solid #f44336; }
-.task.due-today   { background: #fff3e0 !important; border-left: 4px solid #ff9800; }
-.task.due-tomorrow{ background: #fffde7 !important; border-left: 4px solid #ffc107; }
+/* urgency overrides */
+.task.overdue      { background: #ffe0e0 !important; border-left: 4px solid #f44336; }
+.task.due-today    { background: #fff3e0 !important; border-left: 4px solid #ff9800; }
+.task.due-tomorrow { background: #fffde7 !important; border-left: 4px solid #ffc107; }
+
+body.dark .task.overdue      { background: #3d0000 !important; border-left: 4px solid #f44336; }
+body.dark .task.due-today    { background: #2e1800 !important; border-left: 4px solid #ff9800; }
+body.dark .task.due-tomorrow { background: #2a2000 !important; border-left: 4px solid #ffc107; }
 
 .task {
     padding: 14px 16px 10px;
     border-radius: 4px 16px 16px 16px;
-    box-shadow:
-        0 4px 10px rgba(0,0,0,0.10),
-        0 1px 3px rgba(0,0,0,0.06),
-        inset 0 -3px 0 rgba(0,0,0,0.06);
+    box-shadow: var(--note-shadow);
     transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
     position: relative;
+    cursor: pointer;
 }
 
-/* folded corner tab */
 .task::before {
     content: '';
     position: absolute;
@@ -238,16 +389,22 @@ h1 {
     left: 0;
     width: 36px;
     height: 6px;
-    background: rgba(0,0,0,0.08);
+    background: var(--note-tab);
     border-radius: 0 0 4px 0;
 }
 
 .task:hover {
     transform: rotate(0deg) scale(1.02) !important;
-    box-shadow:
-        0 10px 28px rgba(0,0,0,0.14),
-        0 2px 6px rgba(0,0,0,0.08);
+    box-shadow: var(--note-hover-shadow);
     z-index: 10;
+}
+
+.task.selected {
+    transform: rotate(0deg) scale(1.02) !important;
+    outline: 3px solid var(--selected-outline);
+    outline-offset: 2px;
+    z-index: 10;
+    box-shadow: var(--note-hover-shadow);
 }
 
 .task.completed {
@@ -273,19 +430,20 @@ h1 {
 .task span {
     font-size: 0.9375rem;
     font-weight: 700;
-    color: #333;
+    color: var(--span-color);
     word-break: break-word;
+    transition: color 0.3s;
 }
 
 .task.completed span {
     text-decoration: line-through;
-    color: #999;
+    color: var(--span-done);
 }
 
 .delete-btn {
     border: none;
-    background: rgba(0,0,0,0.07);
-    color: #888;
+    background: var(--delete-bg);
+    color: var(--delete-color);
     padding: 6px 8px;
     border-radius: 8px;
     cursor: pointer;
@@ -299,7 +457,7 @@ h1 {
     color: #e53935;
 }
 
-/* ── due date badge ───────────────────────────── */
+/* ── badge row ────────────────────────────────── */
 .badge-row {
     margin-top: 8px;
     padding-left: 32px;
@@ -315,9 +473,14 @@ h1 {
 }
 
 .overdue-badge   { background: rgba(244,67,54,0.18);  color: #c62828; }
-.today-badge     { background: rgba(255,152,0,0.2);   color: #e65100; }
-.tomorrow-badge  { background: rgba(255,193,7,0.25);  color: #8d6e00; }
-.upcoming-badge  { background: rgba(33,150,243,0.15); color: #1565c0; }
+.today-badge     { background: rgba(255,152,0,0.22);  color: #e65100; }
+.tomorrow-badge  { background: rgba(255,193,7,0.28);  color: #8d6e00; }
+.upcoming-badge  { background: rgba(33,150,243,0.18); color: #1565c0; }
+
+body.dark .overdue-badge   { background: rgba(244,67,54,0.3);  color: #ef9a9a; }
+body.dark .today-badge     { background: rgba(255,152,0,0.3);  color: #ffcc80; }
+body.dark .tomorrow-badge  { background: rgba(255,193,7,0.3);  color: #ffe082; }
+body.dark .upcoming-badge  { background: rgba(33,150,243,0.3); color: #90caf9; }
 
 /* ── checkbox ─────────────────────────────────── */
 input[type="checkbox"] {
@@ -325,12 +488,12 @@ input[type="checkbox"] {
     -webkit-appearance: none;
     width: 20px;
     height: 20px;
-    border: 2.5px solid rgba(0,0,0,0.2);
+    border: 2.5px solid var(--check-border);
     border-radius: 50%;
     cursor: pointer;
     flex-shrink: 0;
     position: relative;
-    background: rgba(255,255,255,0.6);
+    background: var(--check-bg);
     transition: border-color 0.2s, background 0.2s;
 }
 
@@ -356,7 +519,7 @@ input[type="checkbox"]:checked::after {
 .empty-state {
     text-align: center;
     padding: 48px 0 24px;
-    color: rgba(255,255,255,0.85);
+    color: var(--empty-color);
     font-size: 0.95rem;
     font-weight: 700;
 }
@@ -369,16 +532,40 @@ input[type="checkbox"]:checked::after {
 }
 
 /* ── responsive ───────────────────────────────── */
-@media (max-width: 520px) {
+@media (max-width: 540px) {
+    body {
+        padding: 32px 12px 60px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
     .input-area {
         flex-direction: column;
     }
 
+    .date-wrap,
     .date-wrap input[type="date"] {
         width: 100%;
     }
 
     .input-area button {
         justify-content: center;
+    }
+
+    .filter-bar {
+        gap: 5px;
+    }
+
+    .kbd-hint {
+        display: none;
+    }
+
+    .task:nth-child(4n+1),
+    .task:nth-child(4n+2),
+    .task:nth-child(4n+3),
+    .task:nth-child(4n+4) {
+        transform: rotate(0deg);
     }
 }
