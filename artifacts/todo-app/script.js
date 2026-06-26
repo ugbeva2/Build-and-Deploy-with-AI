@@ -1,15 +1,16 @@
-const taskInput  = document.getElementById("taskInput");
-const dateInput  = document.getElementById("dateInput");
-const addBtn     = document.getElementById("addBtn");
-const taskList   = document.getElementById("taskList");
-const taskCount  = document.getElementById("taskCount");
-const clearBtn   = document.getElementById("clearBtn");
+const taskInput   = document.getElementById("taskInput");
+const dateInput   = document.getElementById("dateInput");
+const addBtn      = document.getElementById("addBtn");
+const taskList    = document.getElementById("taskList");
+const taskCount   = document.getElementById("taskCount");
+const clearBtn    = document.getElementById("clearBtn");
 const themeToggle = document.getElementById("themeToggle");
-const themeIcon  = document.getElementById("themeIcon");
+const themeIcon   = document.getElementById("themeIcon");
 
 let tasks          = JSON.parse(localStorage.getItem("tasks"))  || [];
 let currentFilter  = localStorage.getItem("filter")             || "all";
 let selectedTaskId = null;
+let editingTaskId  = null;
 let darkMode       = localStorage.getItem("darkMode") === "true";
 
 /* ── init ─────────────────────────────────────── */
@@ -17,7 +18,7 @@ applyTheme();
 setActiveFilter(currentFilter);
 displayTasks();
 
-/* ── events ───────────────────────────────────── */
+/* ── global events ────────────────────────────── */
 addBtn.addEventListener("click", addTask);
 
 taskInput.addEventListener("keydown", function(e) {
@@ -25,7 +26,7 @@ taskInput.addEventListener("keydown", function(e) {
 });
 
 document.addEventListener("keydown", function(e) {
-    // Delete / Backspace removes selected task (not while typing in inputs)
+    if (editingTaskId !== null) return; // don't interfere while editing
     if ((e.key === "Delete" || e.key === "Backspace") &&
         document.activeElement !== taskInput &&
         document.activeElement.type !== "date" &&
@@ -33,7 +34,6 @@ document.addEventListener("keydown", function(e) {
         e.preventDefault();
         deleteTask(selectedTaskId);
     }
-    // Escape clears selection
     if (e.key === "Escape") {
         selectedTaskId = null;
         document.querySelectorAll(".task.selected").forEach(el => el.classList.remove("selected"));
@@ -41,7 +41,6 @@ document.addEventListener("keydown", function(e) {
 });
 
 clearBtn.addEventListener("click", clearCompleted);
-
 themeToggle.addEventListener("click", toggleTheme);
 
 document.querySelectorAll(".filter-btn").forEach(btn => {
@@ -184,18 +183,27 @@ function displayTasks() {
                         <input type="checkbox"
                             ${task.completed ? "checked" : ""}
                             onchange="toggleComplete(${task.id})">
-                        <span>${task.text}</span>
+                        <span class="task-text" title="Double-click to edit">${task.text}</span>
+                        <span class="edit-hint"><i class="fa-solid fa-pencil"></i></span>
                     </div>
-                    <button class="delete-btn" onclick="deleteTask(${task.id})" title="Delete (or select + ⌫)">
+                    <button class="delete-btn" onclick="deleteTask(${task.id})" title="Delete">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
                 ${dueBadge(task) ? `<div class="badge-row">${dueBadge(task)}</div>` : ""}
             `;
 
-            // Click card body (not checkbox / delete) to select
+            // Double-click text to edit
+            const spanEl = li.querySelector(".task-text");
+            spanEl.addEventListener("dblclick", function(e) {
+                e.stopPropagation();
+                startEdit(task.id, spanEl);
+            });
+
+            // Single-click card to select
             li.addEventListener("click", function(e) {
                 if (e.target.type === "checkbox" || e.target.closest(".delete-btn")) return;
+                if (editingTaskId !== null) return;
                 selectedTaskId = (selectedTaskId === task.id) ? null : task.id;
                 displayTasks();
             });
@@ -205,6 +213,62 @@ function displayTasks() {
     }
 
     updateMeta();
+}
+
+/* ── inline edit ──────────────────────────────── */
+function startEdit(id, spanEl) {
+    if (editingTaskId !== null) return;
+    editingTaskId = id;
+
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const li = spanEl.closest(".task");
+    li.classList.add("editing");
+
+    // Swap span → input
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "edit-input";
+    input.value = task.text;
+    spanEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    let committed = false;
+
+    function commit() {
+        if (committed) return;
+        committed = true;
+        const newText = input.value.trim();
+        if (newText && newText !== task.text) {
+            editTask(id, newText);
+        } else {
+            editingTaskId = null;
+            displayTasks();
+        }
+    }
+
+    function cancel() {
+        if (committed) return;
+        committed = true;
+        editingTaskId = null;
+        displayTasks();
+    }
+
+    input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter")  { e.preventDefault(); commit(); }
+        if (e.key === "Escape") { e.preventDefault(); cancel(); }
+    });
+
+    input.addEventListener("blur", commit);
+}
+
+function editTask(id, newText) {
+    tasks = tasks.map(t => t.id === id ? { ...t, text: newText } : t);
+    editingTaskId = null;
+    saveTasks();
+    displayTasks();
 }
 
 /* ── meta ─────────────────────────────────────── */

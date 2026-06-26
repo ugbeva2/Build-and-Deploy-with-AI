@@ -427,17 +427,67 @@ body.dark .task.due-tomorrow { background: #2a2000 !important; border-left: 4px 
     min-width: 0;
 }
 
-.task span {
+.task-text {
     font-size: 0.9375rem;
     font-weight: 700;
     color: var(--span-color);
     word-break: break-word;
     transition: color 0.3s;
+    cursor: text;
 }
 
-.task.completed span {
+.task.completed .task-text {
     text-decoration: line-through;
     color: var(--span-done);
+}
+
+/* pencil hint — visible on hover */
+.edit-hint {
+    font-size: 0.7rem;
+    color: var(--delete-color);
+    opacity: 0;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.task:hover .edit-hint {
+    opacity: 0.55;
+}
+
+.task.editing .edit-hint {
+    display: none;
+}
+
+/* inline edit input */
+.edit-input {
+    flex: 1;
+    font-size: 0.9375rem;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    color: var(--span-color);
+    background: rgba(255,255,255,0.55);
+    border: 2px solid var(--selected-outline);
+    border-radius: 8px;
+    padding: 2px 8px;
+    outline: none;
+    min-width: 0;
+    width: 100%;
+    transition: background 0.2s;
+}
+
+body.dark .edit-input {
+    background: rgba(255,255,255,0.1);
+    color: var(--span-color);
+}
+
+/* freeze rotation while editing */
+.task.editing {
+    transform: rotate(0deg) !important;
+    box-shadow: var(--note-hover-shadow);
+    outline: 3px solid var(--selected-outline);
+    outline-offset: 2px;
+    z-index: 20;
 }
 
 .delete-btn {
