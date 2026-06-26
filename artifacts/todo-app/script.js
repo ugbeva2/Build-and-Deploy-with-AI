@@ -1,6 +1,8 @@
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
+const taskCount = document.getElementById("taskCount");
+const clearBtn = document.getElementById("clearBtn");
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
@@ -14,13 +16,12 @@ taskInput.addEventListener("keypress", function(e) {
     }
 });
 
+clearBtn.addEventListener("click", clearCompleted);
+
 function addTask() {
     const text = taskInput.value.trim();
 
-    if (text === "") {
-        alert("Please enter a task.");
-        return;
-    }
+    if (text === "") return;
 
     const task = {
         id: Date.now(),
@@ -39,44 +40,68 @@ function addTask() {
 function displayTasks() {
     taskList.innerHTML = "";
 
-    tasks.forEach(task => {
-        const li = document.createElement("li");
-        li.className = "task";
-
-        if (task.completed) {
-            li.classList.add("completed");
-        }
-
-        li.innerHTML = `
-            <div class="left">
-                <input type="checkbox"
-                    ${task.completed ? "checked" : ""}
-                    onchange="toggleComplete(${task.id})">
-                <span>${task.text}</span>
+    if (tasks.length === 0) {
+        taskList.innerHTML = `
+            <div class="empty-state">
+                <i class="fa-regular fa-clipboard"></i>
+                No tasks yet. Add one above!
             </div>
-            <button class="delete-btn" onclick="deleteTask(${task.id})">
-                <i class="fa-solid fa-trash"></i>
-            </button>
         `;
+    } else {
+        tasks.forEach(task => {
+            const li = document.createElement("li");
+            li.className = "task" + (task.completed ? " completed" : "");
 
-        taskList.appendChild(li);
-    });
+            li.innerHTML = `
+                <div class="left">
+                    <input type="checkbox"
+                        ${task.completed ? "checked" : ""}
+                        onchange="toggleComplete(${task.id})">
+                    <span>${task.text}</span>
+                </div>
+                <button class="delete-btn" onclick="deleteTask(${task.id})" title="Delete task">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+
+            taskList.appendChild(li);
+        });
+    }
+
+    updateMeta();
+}
+
+function updateMeta() {
+    const total = tasks.length;
+    const done = tasks.filter(t => t.completed).length;
+    const remaining = total - done;
+
+    if (total === 0) {
+        taskCount.textContent = "";
+    } else {
+        taskCount.textContent = `${remaining} of ${total} remaining`;
+    }
+
+    clearBtn.disabled = done === 0;
 }
 
 function toggleComplete(id) {
     tasks = tasks.map(task => {
-        if (task.id === id) {
-            task.completed = !task.completed;
-        }
+        if (task.id === id) task.completed = !task.completed;
         return task;
     });
-
     saveTasks();
     displayTasks();
 }
 
 function deleteTask(id) {
     tasks = tasks.filter(task => task.id !== id);
+    saveTasks();
+    displayTasks();
+}
+
+function clearCompleted() {
+    tasks = tasks.filter(task => !task.completed);
     saveTasks();
     displayTasks();
 }
